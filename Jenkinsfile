@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         NODE_HOME = '/usr/local/bin/node'
+	SONAR_SCANNER_HOME = '/home/sonarqube/sonarqube-9.4.0.54424'
+	PATH = "${env.PATH}:${env.SONAR_SCANNER_HOME}/bin" 
         SONAR_SERVER = 'http://192.168.75.132:9000'
         DOCKER_HUB_USERNAME = 'blackopsgun'
         IMAGE_NAME = 'moviedb'
@@ -26,8 +28,13 @@ pipeline {
 
         stage('Static Code Analysis - SonarQube') {
             steps {
-                withCredentials([string(credentialsId: 'Sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-                    sh 'sonar-scanner -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.sources=./ -Dsonar.host.url=$SONAR_SERVER'
+                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_AUTH_TOKEN')]) {
+                    sh """
+                        sonar-scanner \
+                        -Dsonar.login=$SONAR_AUTH_TOKEN \
+                        -Dsonar.host.url=$SONAR_SERVER \
+                        -Dsonar.sources=./
+                    """
                 }
             }
         }
