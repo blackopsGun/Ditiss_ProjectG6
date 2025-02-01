@@ -61,3 +61,22 @@ pipeline {
                 }
             }
         }
+
+        // Add your Argo CD deployment stage here
+        stage('Deploy to Kubernetes using Argo CD') {
+            steps {
+                script {
+                    sh """
+                    argocd app sync $ARGOCD_APP_NAME
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
